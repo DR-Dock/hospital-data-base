@@ -1,0 +1,348 @@
+DROP VIEW IF EXISTS "R15";
+DROP VIEW IF EXISTS "R14";
+DROP VIEW IF EXISTS "R13";
+DROP VIEW IF EXISTS "R12";
+DROP VIEW IF EXISTS "R11";
+DROP VIEW IF EXISTS "R10";
+DROP VIEW IF EXISTS "R9";
+DROP VIEW IF EXISTS "R8";
+DROP VIEW IF EXISTS "R7";
+DROP VIEW IF EXISTS "R6";
+DROP VIEW IF EXISTS "R5";
+DROP VIEW IF EXISTS "R4";
+DROP VIEW IF EXISTS "R3";
+DROP VIEW IF EXISTS "R2";
+DROP VIEW IF EXISTS "R1";
+
+DROP TABLE IF EXISTS operations;
+DROP TABLE IF EXISTS ranges;
+DROP TABLE IF EXISTS hospitalization;
+DROP TABLE IF EXISTS patients;
+DROP TABLE IF EXISTS diagnoses;
+DROP TABLE IF EXISTS chambers;
+DROP TABLE IF EXISTS attending_staff;
+DROP TABLE IF EXISTS service_staff;
+DROP TABLE IF EXISTS position_without_specialization;
+DROP TABLE IF EXISTS specialized_positions;
+DROP TABLE IF EXISTS specialization;
+DROP TABLE IF EXISTS posts;
+
+
+
+
+CREATE TABLE posts (
+id_posts SERIAL, 
+name text NOT NULL,
+CONSTRAINT "K0" PRIMARY KEY(id_posts)
+);
+
+CREATE TABLE specialization (
+id_specialization SERIAL,
+name text NOT NULL,
+CONSTRAINT "K5" PRIMARY KEY(id_specialization)
+);
+
+CREATE TABLE specialized_positions (
+id_posts INTEGER NOT NULL, 
+id_specialization INTEGER NOT NULL,
+CONSTRAINT "C2" FOREIGN KEY(id_posts) REFERENCES posts(id_posts),
+CONSTRAINT "C3" FOREIGN KEY(id_specialization) REFERENCES specialization(id_specialization),
+CONSTRAINT "K3" PRIMARY KEY(id_posts),
+CONSTRAINT "K6" UNIQUE (id_posts,id_specialization)
+);
+
+CREATE TABLE position_without_specialization (
+id_posts INTEGER REFERENCES posts(id_posts) NOT NULL,
+CONSTRAINT "K1" PRIMARY KEY(id_posts) 
+);
+
+
+
+CREATE TABLE service_staff (
+id_man SERIAL,
+surname text NOT NULL,
+name text NOT NULL,
+lastname text NOT NULL,
+id_specialization INTEGER NOT NULL,
+id_posts INTEGER NOT NULL,
+CONSTRAINT "K111111" PRIMARY KEY(id_man),
+CONSTRAINT "C22" FOREIGN KEY(id_specialization) REFERENCES specialization(id_specialization),
+CONSTRAINT "C1" FOREIGN KEY(id_posts) REFERENCES position_without_specialization(id_posts)
+);
+
+
+
+CREATE TABLE attending_staff (
+id_man SERIAL,
+id_posts INTEGER NOT NULL,
+id_specialization INTEGER NOT NULL,
+surname text NOT NULL,
+name text NOT NULL,
+lastname text NOT NULL,
+CONSTRAINT "C33" FOREIGN KEY (id_posts,id_specialization) REFERENCES specialized_positions(id_posts,id_specialization), 
+CONSTRAINT "K15" PRIMARY KEY(id_man),
+CONSTRAINT "123" UNIQUE (id_man,id_specialization)
+);
+
+CREATE TABLE chambers (
+id_chamber SERIAL,
+number_of_seats INTEGER NOT NULL,
+id_specialization INTEGER NOT NULL,
+CONSTRAINT "C4" FOREIGN KEY (id_specialization) REFERENCES specialization (id_specialization), 
+CONSTRAINT "K9" PRIMARY KEY (id_chamber),
+CONSTRAINT "K8" UNIQUE (id_chamber, id_specialization)
+);
+
+CREATE TABLE diagnoses (
+id_diagnose SERIAL,
+name text NOT NULL,
+id_specialization INTEGER NOT NULL,
+CONSTRAINT "C6" FOREIGN KEY (id_specialization) REFERENCES specialization(id_specialization), 
+CONSTRAINT "K66" PRIMARY KEY (id_diagnose),
+CONSTRAINT "K7" UNIQUE (id_diagnose,id_specialization)
+);
+
+CREATE TABLE patients (
+id_patient SERIAL,
+surname text NOT NULL,
+name text NOT NULL,
+lastname text NOT NULL,
+CONSTRAINT "K11" PRIMARY KEY(id_patient)
+);
+
+CREATE TABLE hospitalization(
+id_hospitalization SERIAL,
+id_patient INTEGER NOT NULL,
+id_chamber INTEGER NOT NULL,
+id_diagnose INTEGER NOT NULL,
+id_man INTEGER NOT NULL, 
+id_specialization INTEGER NOT NULL,
+CONSTRAINT "C7" FOREIGN KEY (id_diagnose,id_specialization) REFERENCES diagnoses(id_diagnose,id_specialization),                
+CONSTRAINT "C8" FOREIGN KEY (id_chamber,id_specialization) REFERENCES chambers(id_chamber,id_specialization),
+CONSTRAINT "C11" FOREIGN KEY (id_man,id_specialization) REFERENCES attending_staff(id_man,id_specialization),
+CONSTRAINT "C9" FOREIGN KEY (id_patient) REFERENCES patients (id_patient),
+CONSTRAINT "K20" PRIMARY KEY (id_hospitalization)
+);
+
+CREATE TABLE ranges(
+id_hospitalization INTEGER,
+date DATE NOT NULL,
+CONSTRAINT "C30" FOREIGN KEY (id_hospitalization) REFERENCES hospitalization (id_hospitalization),
+CONSTRAINT "K25" PRIMARY KEY (id_hospitalization,date)
+);
+
+CREATE TABLE operations(
+id_operation SERIAL,
+date_operation DATE NOT NULL,
+id_hospitalization INTEGER NOT NULL,
+CONSTRAINT "C10" FOREIGN KEY (id_hospitalization) REFERENCES hospitalization(id_hospitalization),
+CONSTRAINT "C31" FOREIGN KEY (id_hospitalization,date_operation) REFERENCES ranges(id_hospitalization,date),
+CONSTRAINT "K19" PRIMARY KEY(id_operation)
+);
+
+
+
+
+
+
+INSERT INTO posts(name) VALUES ('Мытьё.полов');
+INSERT INTO posts(name) VALUES ('Медсестра.Медбрат');
+INSERT INTO posts(name) VALUES ('Травмотолог');
+INSERT INTO posts(name) VALUES ('Доктор');
+INSERT INTO posts(name) VALUES ('Мастер по лёгким');
+INSERT INTO posts(name) VALUES ('Глазной');
+INSERT INTO posts(name) VALUES ('Выпрямитель');
+INSERT INTO posts(name) VALUES ('Пульманолог');
+INSERT INTO posts(name) VALUES ('Хирург');
+INSERT INTO posts(name) VALUES ('Окулист');
+
+
+INSERT INTO specialization(name) VALUES ('Пульманология');
+INSERT INTO specialization(name) VALUES ('Травматология');
+INSERT INTO specialization(name) VALUES ('Офтальмология');
+INSERT INTO specialization(name) VALUES ('Хирургия');
+
+
+INSERT INTO specialized_positions(id_posts,id_specialization) VALUES (3,2);
+INSERT INTO specialized_positions(id_posts,id_specialization) VALUES (4,4);
+INSERT INTO specialized_positions(id_posts,id_specialization) VALUES (5,1);
+INSERT INTO specialized_positions(id_posts,id_specialization) VALUES (6,3);
+INSERT INTO specialized_positions(id_posts,id_specialization) VALUES (7,2);
+INSERT INTO specialized_positions(id_posts,id_specialization) VALUES (8,1);
+INSERT INTO specialized_positions(id_posts,id_specialization) VALUES (9,4);
+INSERT INTO specialized_positions(id_posts,id_specialization) VALUES (10,3);
+
+
+INSERT INTO position_without_specialization(id_posts) VALUES (1);
+INSERT INTO position_without_specialization(id_posts) VALUES (2);
+
+
+INSERT INTO service_staff(surname,name,lastname,id_posts,id_specialization) VALUES ('И','А','А',1,1);
+INSERT INTO service_staff(surname,name,lastname,id_posts,id_specialization) VALUES ('П','Б','Б',2,2);
+INSERT INTO service_staff(surname,name,lastname,id_posts,id_specialization) VALUES ('С','В','В',1,3);
+INSERT INTO service_staff(surname,name,lastname,id_posts,id_specialization) VALUES ('Н','С','С',2,2);
+INSERT INTO service_staff(surname,name,lastname,id_posts,id_specialization) VALUES ('И','М','М',1,1);
+INSERT INTO service_staff(surname,name,lastname,id_posts,id_specialization) VALUES ('П','Н','Н',2,2);
+INSERT INTO service_staff(surname,name,lastname,id_posts,id_specialization) VALUES ('С','П','П',1,3);
+INSERT INTO service_staff(surname,name,lastname,id_posts,id_specialization) VALUES ('Н','Г','Г',2,4);
+INSERT INTO service_staff(surname,name,lastname,id_posts,id_specialization) VALUES ('Н','Л','Л',1,1);
+INSERT INTO service_staff(surname,name,lastname,id_posts,id_specialization) VALUES ('Д','М','М',2,2);
+INSERT INTO service_staff(surname,name,lastname,id_posts,id_specialization) VALUES ('С','Т','Т',1,3);
+INSERT INTO service_staff(surname,name,lastname,id_posts,id_specialization) VALUES ('Д','З','П',2,4);
+
+
+
+INSERT INTO attending_staff(surname,name,lastname,id_posts,id_specialization) VALUES ('К','Т','Т',3,2);
+INSERT INTO attending_staff(surname,name,lastname,id_posts,id_specialization) VALUES ('З','В','В',4,4);
+INSERT INTO attending_staff(surname,name,lastname,id_posts,id_specialization) VALUES ('З','М','М',5,1);
+INSERT INTO attending_staff(surname,name,lastname,id_posts,id_specialization) VALUES ('З','Г','Г',6,3);
+INSERT INTO attending_staff(surname,name,lastname,id_posts,id_specialization) VALUES ('Д','С','С',7,2);
+INSERT INTO attending_staff(surname,name,lastname,id_posts,id_specialization) VALUES ('Т','П','П',8,1);
+INSERT INTO attending_staff(surname,name,lastname,id_posts,id_specialization) VALUES ('Т','Р','Р',9,4);
+INSERT INTO attending_staff(surname,name,lastname,id_posts,id_specialization) VALUES ('С','Ц','Ц',10,3);
+INSERT INTO attending_staff(surname,name,lastname,id_posts,id_specialization) VALUES ('Г','Ы','Ы',4,4);
+INSERT INTO attending_staff(surname,name,lastname,id_posts,id_specialization) VALUES ('В','Ш','Ш',7,2);
+INSERT INTO attending_staff(surname,name,lastname,id_posts,id_specialization) VALUES ('С','Х','Х',4,4);
+INSERT INTO attending_staff(surname,name,lastname,id_posts,id_specialization) VALUES ('В','Ч','Ч',5,1);
+INSERT INTO attending_staff(surname,name,lastname,id_posts,id_specialization) VALUES ('Г','Я','Я',4,4);
+INSERT INTO attending_staff(surname,name,lastname,id_posts,id_specialization) VALUES ('С','А','А',5,1);
+INSERT INTO attending_staff(surname,name,lastname,id_posts,id_specialization) VALUES ('П','Д','Д',4,4);
+INSERT INTO attending_staff(surname,name,lastname,id_posts,id_specialization) VALUES ('Н','Ф','Ф',10,3);
+
+
+
+
+INSERT INTO chambers(id_specialization,number_of_seats) VALUES (1,2);
+INSERT INTO chambers(id_specialization,number_of_seats) VALUES (2,3);
+INSERT INTO chambers(id_specialization,number_of_seats) VALUES (3,4);
+INSERT INTO chambers(id_specialization,number_of_seats) VALUES (4,2);
+INSERT INTO chambers(id_specialization,number_of_seats) VALUES (1,4);
+INSERT INTO chambers(id_specialization,number_of_seats) VALUES (2,2);
+INSERT INTO chambers(id_specialization,number_of_seats) VALUES (3,4);
+INSERT INTO chambers(id_specialization,number_of_seats) VALUES (4,3);
+
+
+
+INSERT INTO diagnoses(name,id_specialization) VALUES ('Воспаление лёгких',1);
+INSERT INTO diagnoses(name,id_specialization) VALUES ('Помутнение кристалика',3);
+INSERT INTO diagnoses(name,id_specialization) VALUES ('Апендицит',4);
+INSERT INTO diagnoses(name,id_specialization) VALUES ('Перелом',2);
+INSERT INTO diagnoses(name,id_specialization) VALUES ('Ушиб',2);
+
+
+
+INSERT INTO patients(surname,name,lastname) VALUES ('С','А','А');
+INSERT INTO patients(surname,name,lastname) VALUES ('Н','В','В');
+INSERT INTO patients(surname,name,lastname) VALUES ('З','Ф','Ф');
+INSERT INTO patients(surname,name,lastname) VALUES ('С','Т','Т');
+INSERT INTO patients(surname,name,lastname) VALUES ('П','Г','Г');
+INSERT INTO patients(surname,name,lastname) VALUES ('Л','Н','Н');
+INSERT INTO patients(surname,name,lastname) VALUES ('П','Л','Л');
+INSERT INTO patients(surname,name,lastname) VALUES ('Б','Ш','Ш');
+INSERT INTO patients(surname,name,lastname) VALUES ('Г','Х','Х');
+INSERT INTO patients(surname,name,lastname) VALUES ('О','Ц','Ц');
+
+
+
+
+
+INSERT INTO hospitalization(id_specialization,id_chamber,id_patient,id_man,id_diagnose) VALUES (1,1,1,3,1);
+INSERT INTO hospitalization(id_specialization,id_chamber,id_patient,id_man,id_diagnose) VALUES (2,2,2,1,4);
+INSERT INTO hospitalization(id_specialization,id_chamber,id_patient,id_man,id_diagnose) VALUES (3,7,3,4,2);
+INSERT INTO hospitalization(id_specialization,id_chamber,id_patient,id_man,id_diagnose) VALUES (4,8,4,11,3);
+INSERT INTO hospitalization(id_specialization,id_chamber,id_patient,id_man,id_diagnose) VALUES (1,1,5,6,1);
+INSERT INTO hospitalization(id_specialization,id_chamber,id_patient,id_man,id_diagnose) VALUES (2,2,6,5,5);
+INSERT INTO hospitalization(id_specialization,id_chamber,id_patient,id_man,id_diagnose) VALUES (3,7,7,8,2);
+INSERT INTO hospitalization(id_specialization,id_chamber,id_patient,id_man,id_diagnose) VALUES (4,8,8,9,3);
+INSERT INTO hospitalization(id_specialization,id_chamber,id_patient,id_man,id_diagnose) VALUES (1,5,9,12,1);
+INSERT INTO hospitalization(id_specialization,id_chamber,id_patient,id_man,id_diagnose) VALUES (2,6,10,10,4);
+INSERT INTO hospitalization(id_specialization,id_chamber,id_patient,id_man,id_diagnose) VALUES (3,3,1,16,2);
+INSERT INTO hospitalization(id_specialization,id_chamber,id_patient,id_man,id_diagnose) VALUES (4,4,2,2,3);
+INSERT INTO hospitalization(id_specialization,id_chamber,id_patient,id_man,id_diagnose) VALUES (1,5,3,12,1);
+INSERT INTO hospitalization(id_specialization,id_chamber,id_patient,id_man,id_diagnose) VALUES (4,4,4,15,3);
+INSERT INTO hospitalization(id_specialization,id_chamber,id_patient,id_man,id_diagnose) VALUES (3,3,5,16,2);
+INSERT INTO hospitalization(id_specialization,id_chamber,id_patient,id_man,id_diagnose) VALUES (4,4,6,15,3);
+
+
+
+
+INSERT INTO ranges(id_hospitalization,date) VALUES (12,'01-03-2007');
+INSERT INTO ranges(id_hospitalization,date) VALUES (12,'02-03-2007');
+INSERT INTO ranges(id_hospitalization,date) VALUES (13,'01-03-2007');
+INSERT INTO ranges(id_hospitalization,date) VALUES (13,'02-03-2007');
+INSERT INTO ranges(id_hospitalization,date) VALUES (13,'03-03-2007');
+INSERT INTO ranges(id_hospitalization,date) VALUES (14,'02-03-2007');
+INSERT INTO ranges(id_hospitalization,date) VALUES (14,'03-03-2007');
+INSERT INTO ranges(id_hospitalization,date) VALUES (14,'04-03-2007');
+INSERT INTO ranges(id_hospitalization,date) VALUES (15,'01-03-2007');
+INSERT INTO ranges(id_hospitalization,date) VALUES (15,'02-03-2007');
+INSERT INTO ranges(id_hospitalization,date) VALUES (16,'03-03-2007');
+INSERT INTO ranges(id_hospitalization,date) VALUES (16,'04-03-2007');
+INSERT INTO ranges(id_hospitalization,date) VALUES (11,'01-03-2007');
+INSERT INTO ranges(id_hospitalization,date) VALUES (11,'02-03-2007');
+INSERT INTO ranges(id_hospitalization,date) VALUES (11,'03-03-2007');
+INSERT INTO ranges(id_hospitalization,date) VALUES (10,'01-03-2007');
+INSERT INTO ranges(id_hospitalization,date) VALUES (10,'02-03-2007');
+INSERT INTO ranges(id_hospitalization,date) VALUES (10,'03-03-2007');
+INSERT INTO ranges(id_hospitalization,date) VALUES (9,'01-03-2007');
+INSERT INTO ranges(id_hospitalization,date) VALUES (9,'02-03-2007');
+INSERT INTO ranges(id_hospitalization,date) VALUES (1,'01-03-2006');
+INSERT INTO ranges(id_hospitalization,date) VALUES (1,'02-03-2006');
+INSERT INTO ranges(id_hospitalization,date) VALUES (1,'03-03-2006');
+INSERT INTO ranges(id_hospitalization,date) VALUES (2,'03-03-2006');
+INSERT INTO ranges(id_hospitalization,date) VALUES (2,'04-03-2006');
+INSERT INTO ranges(id_hospitalization,date) VALUES (2,'05-03-2006');
+INSERT INTO ranges(id_hospitalization,date) VALUES (3,'02-03-2006');
+INSERT INTO ranges(id_hospitalization,date) VALUES (3,'03-03-2006');
+INSERT INTO ranges(id_hospitalization,date) VALUES (3,'04-03-2006');
+INSERT INTO ranges(id_hospitalization,date) VALUES (4,'02-03-2006');
+INSERT INTO ranges(id_hospitalization,date) VALUES (4,'03-03-2006');
+INSERT INTO ranges(id_hospitalization,date) VALUES (4,'04-03-2006');
+INSERT INTO ranges(id_hospitalization,date) VALUES (5,'01-03-2006');
+INSERT INTO ranges(id_hospitalization,date) VALUES (5,'02-03-2006');
+INSERT INTO ranges(id_hospitalization,date) VALUES (5,'03-03-2006');
+INSERT INTO ranges(id_hospitalization,date) VALUES (6,'01-03-2006');
+INSERT INTO ranges(id_hospitalization,date) VALUES (6,'02-03-2006');
+INSERT INTO ranges(id_hospitalization,date) VALUES (7,'03-03-2006');
+INSERT INTO ranges(id_hospitalization,date) VALUES (7,'04-03-2006');
+INSERT INTO ranges(id_hospitalization,date) VALUES (8,'03-03-2006');
+INSERT INTO ranges(id_hospitalization,date) VALUES (8,'04-03-2006');
+INSERT INTO ranges(id_hospitalization,date) VALUES (8,'05-03-2006');
+                   
+
+INSERT INTO operations(id_hospitalization,date_operation) VALUES (4,'02-03-2006');
+INSERT INTO operations(id_hospitalization,date_operation) VALUES (12,'02-03-2007');
+INSERT INTO operations(id_hospitalization,date_operation) VALUES (14,'02-03-2007');
+INSERT INTO operations(id_hospitalization,date_operation) VALUES (16,'03-03-2007');
+INSERT INTO operations(id_hospitalization,date_operation) VALUES (8,'03-03-2006');
+
+
+
+
+--Переполн палаты:
+
+CREATE VIEW "R1" AS SELECT id_hospitalization FROM ranges WHERE '01-03-2007' <= date GROUP BY id_hospitalization;
+CREATE VIEW "R2" AS SELECT id_chamber FROM hospitalization NATURAL INNER JOIN "R1";
+CREATE VIEW "R3" AS SELECT id_chamber,count(*) FROM "R2" GROUP BY id_chamber;
+CREATE VIEW "R4" AS SELECT id_chamber FROM "R3" NATURAL INNER JOIN chambers WHERE count > number_of_seats;
+
+--Лечащий врач без пациентов:
+
+CREATE VIEW "R5" AS SELECT id_man FROM hospitalization NATURAL INNER JOIN "R1" GROUP BY id_man;
+CREATE VIEW "R6" AS SELECT surname,name,lastname FROM attending_staff WHERE NOT id_man IN (SELECT id_man FROM "R5");
+
+--Хирург с большим числом операций:
+
+CREATE VIEW "R7" AS SELECT id_hospitalization, id_man FROM hospitalization NATURAL INNER JOIN operations;
+CREATE VIEW "R8" AS SELECT id_man,count(*) FROM "R7" GROUP BY id_man;
+CREATE VIEW "R9" AS SELECT id_man FROM "R8" WHERE count = (SELECT MAX(count) FROM "R8");
+CREATE VIEW "R10" AS SELECT surname,name,lastname FROM "R9" NATURAL INNER JOIN attending_staff;
+--Найти всех лечащих врачей указанного пациента, который был прооперирован не менее2х раз:
+
+CREATE VIEW "R11" AS SELECT id_patient FROM patients WHERE surname ='Слепов' AND name = 'Т' AND lastname = 'Т';
+CREATE VIEW "R12" AS SELECT id_man, id_hospitalization, id_patient FROM hospitalization NATURAL INNER JOIN "R11";
+CREATE VIEW "R13" AS SELECT id_patient,count(*) FROM "R12" NATURAL INNER JOIN operations GROUP BY id_patient;
+CREATE VIEW "R14" AS SELECT id_man, count FROM "R13" NATURAL INNER JOIN hospitalization WHERE count > 2 ;
+CREATE VIEW "R15" AS SELECT surname,name,lastname FROM "R14" NATURAL INNER JOIN attending_staff;
+
+
