@@ -18,7 +18,7 @@
 <li><strong> Моделирование базы данных </strong></li>
 </ol>
 <p><strong>2.1. Сущности и связи</strong></p>
-![](//placehold.it/150x100)
+![]()
 <p>&nbsp;</p>
 <p><strong>2.2. Схема </strong><strong>ER</strong><strong>-модели</strong></p>
 <p>&nbsp;</p>
