@@ -18,7 +18,7 @@
 <li><strong> Моделирование базы данных </strong></li>
 </ol>
 <p><strong>2.1. Сущности и связи</strong></p>
-![](https://github.com/DR-Dock/hospital-data-base/blob/master/%D1%81%D1%85%D0%B5%D0%BC%D0%B00.png)
+<img src="https://github.com/DR-Dock/hospital-data-base/blob/master/%D1%81%D1%85%D0%B5%D0%BC%D0%B00.png">
 <p>&nbsp;</p>
 <p><strong>2.2. Схема </strong><strong>ER</strong><strong>-модели</strong></p>
 <p>&nbsp;</p>
